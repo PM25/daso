@@ -33,7 +33,10 @@ def get_target_dist(cfg, to_prob=False, device=None):
         if reverse_ul:
             imb_factor_ul = 1 / imb_factor_ul
         
-        est_path = f"dist_estimation/{cfg.DATASET.NAME}_n{num_l_head}_m{num_ul_head}_l{imb_factor_l}_u{imb_factor_ul}_long_s{cfg.SEED}/MLLS_BCTS_estimation.json"
+        if cfg.DATASET.NAME == "stl10":
+            est_path = f"dist_estimation/{cfg.DATASET.NAME}_n{num_l_head}_l{imb_factor_l}_long_s{cfg.SEED}/MLLS_BCTS_estimation.json"
+        else:
+            est_path = f"dist_estimation/{cfg.DATASET.NAME}_n{num_l_head}_m{num_ul_head}_l{imb_factor_l}_u{imb_factor_ul}_long_s{cfg.SEED}/MLLS_BCTS_estimation.json"
         # p(y) based on the labeled examples seen during training
         from pathlib import Path
         import json
