@@ -10,6 +10,7 @@ from lib.models.feature_queue import FeatureQueue
 
 from .remixmatch import ReMixMatch
 from .ssl_utils import interleave
+from .load_mllsbcts import get_target_dist
 
 
 class ReMixMatchDASO(ReMixMatch):
@@ -25,6 +26,11 @@ class ReMixMatchDASO(ReMixMatch):
         self.psa_loss_weight = cfg.ALGORITHM.DASO.PSA_LOSS_WEIGHT
         self.T_dist = cfg.ALGORITHM.DASO.DIST_TEMP
         self.queue = FeatureQueue(cfg)
+
+        # override DARP's target distribution
+        if self.with_align:
+            target_dist = get_target_dist(cfg, to_prob=True, device=self.device)
+            self.dist_align.set_target_dist(target_dist)
 
     def run_step(self):
         loss_dict = {}
