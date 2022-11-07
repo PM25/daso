@@ -1,0 +1,12 @@
+yacs
+future
+tensorboard
+numpy
+pandas
+Pillow
+progress
+scipy
+--extra-index-url https://download.pytorch.org/whl/cu116
+torch
+torchaudio
+torchvision
