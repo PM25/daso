@@ -208,8 +208,11 @@ class BaseAlgorithm(BaseTrainer):
                 outputs = model(images, is_train=False)  # logits
                 batch_size = images.size(0)
 
-                y_true.extend(target.cpu().tolist())
-                y_pred.extend(torch.max(outputs, dim=-1)[1].cpu().tolist())
+                _y_true = target.cpu().tolist()
+                _y_pred = torch.max(outputs, dim=-1)[1].cpu().tolist()
+
+                y_true.extend(_y_true)
+                y_pred.extend(_y_pred)
 
                 # compute metrics using original logits
                 loss = F.cross_entropy(outputs, target, reduction="none").mean()
@@ -223,11 +226,12 @@ class BaseAlgorithm(BaseTrainer):
                     outputs_la, target, log_classwise=log_classwise, prefix="logit_adjusted"
                 )
                 metrics.update({"cost_la": loss_la.item(), "top1_la": top1_la, "top5_la": top5_la})
-                meters.put_scalars(metrics, n=batch_size)
 
-                balanced_acc = balanced_accuracy_score(y_true, y_pred)
-                geo_mean = geometric_mean_score(y_true, y_pred, correction=0.001)
+                balanced_acc = balanced_accuracy_score(_y_true, _y_pred)
+                geo_mean = geometric_mean_score(_y_true, _y_pred, correction=0.001)
                 metrics.update({"bacc": balanced_acc, "geo_mean": geo_mean})
+
+                meters.put_scalars(metrics, n=batch_size)
         
         balanced_acc = balanced_accuracy_score(y_true, y_pred)
         geo_mean = geometric_mean_score(y_true, y_pred, correction=0.001)
