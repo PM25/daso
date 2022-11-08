@@ -226,11 +226,6 @@ class BaseAlgorithm(BaseTrainer):
                     outputs_la, target, log_classwise=log_classwise, prefix="logit_adjusted"
                 )
                 metrics.update({"cost_la": loss_la.item(), "top1_la": top1_la, "top5_la": top5_la})
-
-                # balanced_acc = balanced_accuracy_score(_y_true, _y_pred, zero_division=0)
-                # geo_mean = geometric_mean_score(_y_true, _y_pred, correction=0.001)
-                # metrics.update({"bacc": balanced_acc, "geo_mean": geo_mean})
-
                 meters.put_scalars(metrics, n=batch_size)
         
         balanced_acc = balanced_accuracy_score(y_true, y_pred)
