@@ -10,3 +10,5 @@ scipy
 torch
 torchaudio
 torchvision
+scikit-learn
+imblearn

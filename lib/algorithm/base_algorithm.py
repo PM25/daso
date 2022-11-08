@@ -4,6 +4,8 @@ import os
 import torch
 import torch.nn.functional as F
 from yacs.config import CfgNode
+from sklearn.metrics import *
+from imblearn.metrics import geometric_mean_score
 
 from lib.dataset.utils import get_class_counts
 from lib.engine import BaseTrainer
@@ -189,6 +191,10 @@ class BaseAlgorithm(BaseTrainer):
 
         model.eval()
         log_classwise = self.cfg.MISC.LOG_CLASSWISE
+        
+        y_true = []
+        y_pred = []
+        
         with torch.no_grad():
             for i, (images, target, _) in enumerate(data_loader):
                 metrics = {}
@@ -198,6 +204,9 @@ class BaseAlgorithm(BaseTrainer):
 
                 outputs = model(images, is_train=False)  # logits
                 batch_size = images.size(0)
+
+                y_true.extend(target.cpu().tolist())
+                y_pred.extend(torch.max(outputs, dim=-1)[1].cpu().tolist())
 
                 # compute metrics using original logits
                 loss = F.cross_entropy(outputs, target, reduction="none").mean()
@@ -212,6 +221,9 @@ class BaseAlgorithm(BaseTrainer):
                 )
                 metrics.update({"cost_la": loss_la.item(), "top1_la": top1_la, "top5_la": top5_la})
                 meters.put_scalars(metrics, n=batch_size)
+        
+        balanced_acc = balanced_accuracy_score(y_true, y_pred)
+        geo_mean = geometric_mean_score(y_true, y_pred, correction=0.001)
 
         # log classwise accuracy
         if log_classwise:
@@ -223,6 +235,8 @@ class BaseAlgorithm(BaseTrainer):
         results = meters.get_latest_scalars_with_avg()
         self.eval_history[prefix + "/top1"].append(results["top1"])
         self.eval_history[prefix + "/top1_la"].append(results["top1_la"])
+        self.eval_history[prefix + "/bacc"].append(balanced_acc)
+        self.eval_history[prefix + "/geo_mean"].append(geo_mean)
 
         model.train()
 
