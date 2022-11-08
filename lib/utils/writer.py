@@ -78,7 +78,7 @@ class CommonMetricPrinter(Writer):
         """
 
         log_text = "Evaluation results: "
-        prefix_keys = ["test/top1", "test/top1_median20", "test/top1_la", "test/top1_la_median20", "test/bacc", "test/geo-mean"]
+        prefix_keys = ["test/top1", "test/top1_median20", "test/top1_la", "test/top1_la_median20", "test/bacc", "test/geo_mean"]
         for _prefix in prefix_keys:
             if _prefix in metrics.keys():
                 log_text += "{}: {:.1f}  ".format(_prefix, metrics[_prefix])
