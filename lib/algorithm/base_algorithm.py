@@ -227,7 +227,7 @@ class BaseAlgorithm(BaseTrainer):
                 )
                 metrics.update({"cost_la": loss_la.item(), "top1_la": top1_la, "top5_la": top5_la})
 
-                balanced_acc = balanced_accuracy_score(_y_true, _y_pred)
+                balanced_acc = balanced_accuracy_score(_y_true, _y_pred, zero_devision=0)
                 geo_mean = geometric_mean_score(_y_true, _y_pred, correction=0.001)
                 metrics.update({"bacc": balanced_acc, "geo_mean": geo_mean})
 
