@@ -170,7 +170,7 @@ class BaseAlgorithm(BaseTrainer):
         # calculate last 20 median
         metrics = {}
         last_n_evals = [20]
-        prefixes = ["valid/top1", "valid/top1_la", "test/top1", "test/top1_la"]
+        prefixes = ["valid/top1", "valid/top1_la", "test/top1", "test/top1_la", "test/bacc", "test/geo_mean"]
         for _prefix in prefixes:
             if _prefix in self.eval_history.keys():
                 for last_n in last_n_evals:
@@ -178,6 +178,9 @@ class BaseAlgorithm(BaseTrainer):
                     median_acc = get_last_n_median(self.eval_history[_prefix], n=last_n)
                     metrics[metric_key] = median_acc
                     self.eval_history[metric_key].append(median_acc)
+        
+        metrics["test/_bacc"] = self.eval_history["test/bacc"][-1]
+        metrics["test/_geo_mean"] = self.eval_history["test/geo_mean"][-1]
 
         if len(metrics.keys()) > 0:
             self.meters.put_scalars(metrics, show_avg=False)  # log median accuracies
@@ -221,6 +224,10 @@ class BaseAlgorithm(BaseTrainer):
                 )
                 metrics.update({"cost_la": loss_la.item(), "top1_la": top1_la, "top5_la": top5_la})
                 meters.put_scalars(metrics, n=batch_size)
+
+                balanced_acc = balanced_accuracy_score(y_true, y_pred)
+                geo_mean = geometric_mean_score(y_true, y_pred, correction=0.001)
+                metrics.update({"bacc": balanced_acc, "geo_mean": geo_mean})
         
         balanced_acc = balanced_accuracy_score(y_true, y_pred)
         geo_mean = geometric_mean_score(y_true, y_pred, correction=0.001)
